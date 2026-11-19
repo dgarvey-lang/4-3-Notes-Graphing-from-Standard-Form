@@ -147,7 +147,7 @@ html, body { overflow-x: clip; }
 .rule.abc .tb { color: var(--up); }
 .rule.abc .tc { color: var(--over); }
 .rule.abc span, .rule.order span { font-size: 18px; }
-.stepbox { background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; } .sbhead { font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 10px; } .sbnum { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 2px 12px; font-size: 15px; } .sbex { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-family: var(--display); font-size: 20px; } .sbex .small { font-family: var(--body); } .sbeq { font-size: clamp(22px, 5vw, 28px); } .sbeq b { color: var(--accent); } .sbsub { font-family: var(--body); font-size: 15px; color: var(--muted); margin-bottom: 4px; } .qeq { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5.5vw, 30px); color: var(--accent); } .remind { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 17px; line-height: 1.6; } .remind .ah { color: var(--accent); font-weight: 700; } .formula { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--accent-soft); border-radius: 12px; padding: 14px; } .frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; } .frac .num { border-bottom: 3px solid currentColor; padding: 0 8px; } .frac .den { padding: 0 8px; } .formula .av { color: var(--accent); } .formula .bbv { color: var(--up); } .rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
+.stepbox { background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; } .sbhead { font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 10px; } .sbnum { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 2px 12px; font-size: 15px; } .sbex { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-family: var(--display); font-size: 20px; } .sbex .small { font-family: var(--body); } .sbeq { font-size: clamp(22px, 5vw, 28px); } .sbeq b { color: var(--accent); } .sbsub { font-family: var(--body); font-size: 15px; color: var(--muted); margin-bottom: 4px; } .qeq { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5.5vw, 30px); color: var(--accent); } .vfin { display: flex; gap: 8px; align-items: center; max-width: 520px; } .vfbox { flex: 1; min-width: 0; font: inherit; font-family: var(--display); font-size: 22px; padding: 8px 12px; border: 2px solid var(--line); border-radius: 8px; background: var(--paper); color: var(--ink); } .vfbox.good { border-color: var(--good); background: var(--good-soft); } .vfbox.badin { border-color: var(--bad); background: var(--bad-soft); } .chip.sq { font-size: 20px; padding: 6px 14px; } .remind { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 17px; line-height: 1.6; } .remind .ah { color: var(--accent); font-weight: 700; } .formula { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--accent-soft); border-radius: 12px; padding: 14px; } .frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; } .frac .num { border-bottom: 3px solid currentColor; padding: 0 8px; } .frac .den { padding: 0 8px; } .formula .av { color: var(--accent); } .formula .bbv { color: var(--up); } .rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
 </style>
 </head>
 <body>
@@ -367,6 +367,49 @@ function stepStandard(el) {
       "In vertex form the vertex is easy to read. In standard form it is hidden, so we need a formula to find it. When graphing, we will always change the equation into VERTEX FORM."));
 }
 
+// ---------- whole-equation vertex form check ----------
+function parseVF(str) {
+  let t = String(str).toLowerCase().replace(/\s+/g, "").replace(/−/g, "-").replace(/²/g, "^2").replace(/½/g, "(1/2)");
+  t = t.replace(/^y=/, "");
+  if (!t.includes("(x") || !/\)\^2/.test(t)) return { err: "form" };
+  if (/[^0-9x+\-*/().^]/.test(t)) return { err: "chars" };
+  t = t.replace(/\^2/g, "**2");
+  t = t.replace(/(\d|\))(?=[(x])/g, "$1*").replace(/x(?=[(\d])/g, "x*");
+  t = t.replace(/(^|[(+\-*/])-\(/g, "$1-1*(");
+  try { const f = new Function("x", '"use strict"; return (' + t + ");"); f(1); return { f }; } catch (e) { return { err: "parse" }; }
+}
+function vfCheck(el, a, h, k, html, okMsg, onDone) {
+  const q = document.createElement("div"); q.className = "q";
+  q.innerHTML = html + `<div class="vfin"><input class="vfbox" aria-label="vertex form equation" placeholder="y = a(x − h)^2 + k" autocomplete="off" spellcheck="false"><button class="chip sq" type="button" title="insert squared">²</button></div>
+    <p class="small muted">Type the whole equation. Use ^2 (or the ² button) for squared, and 1/2 for fractions.</p>
+    <div><button class="btn sm ck">Check</button></div><div class="fb" aria-live="polite"></div>`;
+  const inp = q.querySelector(".vfbox"), fb = q.querySelector(".fb"); let done = false;
+  q.querySelector(".sq").onclick = () => { const s = inp.selectionStart ?? inp.value.length; inp.value = inp.value.slice(0, s) + "^2" + inp.value.slice(inp.selectionEnd ?? s); inp.focus(); inp.setSelectionRange(s + 2, s + 2); };
+  const run = () => {
+    const r = parseVF(inp.value);
+    let ok = false, msg = "";
+    if (r.err === "form") msg = "Write it in vertex form: y = a(x − h)² + k. It needs parentheses around x and h, then ^2.";
+    else if (r.err) msg = "I can't read that. Try typing it like y = 2(x + 1)^2 + 3.";
+    else {
+      ok = [-3, -1, 0, 1, 2, 4, 6].every(x => Math.abs(r.f(x) - (a * (x - h) ** 2 + k)) < 1e-6);
+      if (!ok) {
+        const lead = r.f(h + 1) - r.f(h), vy = r.f(h);
+        if (Math.abs(r.f(-h + 1) - r.f(-h) - a) < 1e-6 && Math.abs(r.f(-h) - k) < 1e-6 && h !== 0) msg = "Close! Check the sign inside the parentheses. Put h in parentheses: (x − (h)).";
+        else if (Math.abs(lead - a) > 1e-6) msg = `Check your a value. It is the same as in standard form: a = ${fmtN(a)}.`;
+        else if (Math.abs(vy - k) > 1e-6) msg = "Check the number at the end. It should be k, the vertex y.";
+        else msg = "Not yet. Use a, and the vertex (h, k): y = a(x − h)² + k.";
+      }
+    }
+    inp.classList.toggle("good", ok); inp.classList.toggle("badin", !ok);
+    fb.className = "fb " + (ok ? "right" : "wrong"); fb.textContent = ok ? "Yes! " + okMsg : msg;
+    if (ok && !done) { done = true; onDone && onDone(); }
+  };
+  q.querySelector(".ck").onclick = run;
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") run(); });
+  el.appendChild(q);
+}
+const simp = (a, h, k) => eqHTML(a, h, k).replace(/<[^>]+>/g, "");
+
 // x -> y -> vertex form for one equation
 function vertexChain(el, a, b, c, p, n, xHint, onDone) {
   const [h, k] = vtx(a, b, c);
@@ -378,11 +421,9 @@ function vertexChain(el, a, b, c, p, n, xHint, onDone) {
       <div class="remind">Put the x value into the <b>original equation</b> to find y. Always use parentheses!</div>
       <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="${p}y" inputmode="decimal" aria-label="vertex y"></div>`,
       [[p + "y", k]], `y = ${fmtN(k)}. The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Use your calculator or Desmos.",
-      () => numCheck(el, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>${n}c. Now you have the vertex and a. Write it in vertex form.</h2>
-        <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. &nbsp;Vertex: (${fmtN(h)}, ${fmtN(k)})</div>
-        <div class="vin">y = <input id="${p}a" inputmode="decimal" aria-label="a"> (x − <input id="${p}h" inputmode="decimal" aria-label="h">)² + <input id="${p}k" inputmode="decimal" aria-label="k"></div>`,
-        [[p + "a", a], [p + "h", h], [p + "k", k]], `y = ${fmtA(a)}(x − ${par(h)})² + ${par(k)} simplifies to ${eqHTML(a, h, k).replace(/<[^>]+>/g, "")}.`,
-        "Not yet. a stays the same. h is the vertex x and k is the vertex y.", onDone)));
+      () => vfCheck(el, a, h, k, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>${n}c. Now you have the vertex and a. Write it in vertex form.</h2>
+        <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. &nbsp;a = ${fmtN(a)}, &nbsp;vertex (${fmtN(h)}, ${fmtN(k)})</div>`,
+        `${simp(a, h, k)}`, onDone)));
 }
 
 function stepFormula(el) {
@@ -418,13 +459,10 @@ function stepPlug(el) {
   window.__redraw = null;
   numCheck(el, `<h2>1. Find y.</h2><div class="vin">y = ${plugHTML(1, 10, 22, -5)} = <input id="py" inputmode="decimal" aria-label="y value"></div>`,
     [["py", -3]], "25 − 50 + 22 = −3. The vertex is (−5, −3).", "Not yet. (−5)² = 25 and 10(−5) = −50. Then add 22.",
-    () => numCheck(el, `<h2>2. Write it in vertex form.</h2>
+    () => vfCheck(el, 1, -5, -3, `<h2>2. Write it in vertex form.</h2>
       <div class="remind"><b>Remember:</b> the <b>a</b> value in standard form is the <b>same a</b> value in vertex form!<br>
-        y = <span class="ah">1</span>x² + 10x + 22 &nbsp;→&nbsp; y = <span class="ah">1</span>(x − h)² + k</div>
-      <div class="vin">y = <input id="pa" inputmode="decimal" aria-label="a"> (x − <input id="ph" inputmode="decimal" aria-label="h">)² + <input id="pk" inputmode="decimal" aria-label="k"></div>
-      <p class="small muted">h is the vertex x, k is the vertex y.</p>`,
-      [["pa", 1], ["ph", -5], ["pk", -3]], "y = (x − (−5))² + (−3) simplifies to y = (x + 5)² − 3. Put h in parentheses to get the sign right!",
-      "Not yet. a stays the same as in standard form (1). h is the vertex x (−5) and k is the vertex y.",
+        y = <span class="ah">1</span>x² + 10x + 22 &nbsp;→&nbsp; a = 1, vertex (−5, −3). &nbsp;Vertex form: y = a(x − h)² + k</div>`,
+      "y = (x − (−5))² + (−3) simplifies to y = (x + 5)² − 3.",
       () => plot(el, 1, -5, -3, "3. Graph it from vertex form! Tap the grid to plot points.")));
 }
 
@@ -480,11 +518,9 @@ function problem(el, [a, b, c], title) {
         <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="vy" inputmode="decimal" aria-label="vertex y"></div>
         <p class="small muted">Use your calculator or Desmos.</p>`,
         [["vy", k]], `The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Keep the parentheses!",
-        () => numCheck(el, `<h2>4. Write it in vertex form.</h2>
-          <div class="vin">y = <input id="fa" inputmode="decimal" aria-label="a"> (x − <input id="fh" inputmode="decimal" aria-label="h">)² + <input id="fk" inputmode="decimal" aria-label="k"></div>
-          <p class="small muted">Remember: the a value in standard form is the same a value in vertex form. h is the vertex x, k is the vertex y.</p>`,
-          [["fa", a], ["fh", h], ["fk", k]], `y = ${fmtA(a)}(x − ${par(h)})² + ${par(k)} simplifies to ${eqHTML(a, h, k).replace(/<[^>]+>/g, "")}.`,
-          "Not yet. a stays the same. h is the vertex x and k is the vertex y.",
+        () => vfCheck(el, a, h, k, `<h2>4. Write it in vertex form.</h2>
+          <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. Use a and the vertex (h, k): y = a(x − h)² + k</div>`,
+          `${simp(a, h, k)}`,
           () => plot(el, a, h, k, "5. Graph it! Tap the grid to plot points.", () =>
             numCheck(el, `<h2>6. Check: what is the y-intercept?</h2>
               <div class="vin">( 0 , <input id="yi" inputmode="decimal" aria-label="y-intercept"> )</div>
