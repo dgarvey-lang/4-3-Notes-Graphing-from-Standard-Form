@@ -147,7 +147,7 @@ html, body { overflow-x: clip; }
 .rule.abc .tb { color: var(--up); }
 .rule.abc .tc { color: var(--over); }
 .rule.abc span, .rule.order span { font-size: 18px; }
-.rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
+.formula { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--accent-soft); border-radius: 12px; padding: 14px; } .frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; } .frac .num { border-bottom: 3px solid currentColor; padding: 0 8px; } .frac .den { padding: 0 8px; } .formula .av { color: var(--accent); } .formula .bbv { color: var(--up); } .rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
 </style>
 </head>
 <body>
@@ -370,31 +370,37 @@ function stepStandard(el) {
 function stepFormula(el) {
   const A = [-2, -1, 1, 2]; let a = 1, b = 10;
   el.innerHTML = `<h1>Finding the vertex x</h1>
-    <p>Move the sliders for <b>a</b> and <b>b</b>. Watch the x value of the vertex. Can you find the rule?</p>
+    <p class="big">To find the x value of the vertex, use this formula:</p>
+    <div class="formula">x = <span class="frac"><span class="num">−<span class="bbv">b</span></span><span class="den">2<span class="av">a</span></span></span></div>
+    <div class="ex">
+      <div class="small muted">Example: y = x² + 10x + 22 &nbsp;(a = 1, b = 10)</div>
+      <div class="eqline">x = −10 ÷ (2 · 1) = −10 ÷ 2 = −5</div>
+    </div>
+    <p><b>See it work.</b> Move the sliders for a and b. The formula always lands on the vertex.</p>
     <div class="eq" id="eq"></div>
     <div class="graph mid"><canvas id="cv"></canvas></div>
     <div class="vread" id="vr"></div>
     <div class="ctrl"><label for="sa">a: <span id="va"></span></label><input type="range" id="sa" min="0" max="3" step="1"></div>
     <div class="ctrl"><label for="sb">b: <span id="vb"></span></label><input type="range" id="sb" min="-10" max="10" step="2"></div>
-    <div class="chips"><span class="lbl">Try:</span><button class="chip" id="t1">a = 1, b = 10</button><button class="chip" id="t2">a = 2, b = 4</button><button class="chip" id="t3">a = −1, b = −6</button></div>`;
+    <p class="small muted">c only moves the graph up or down, so it does not change the vertex x.</p>`;
   const cv = el.querySelector("#cv"), sa = el.querySelector("#sa"), sb = el.querySelector("#sb");
   const show = () => {
     sa.value = A.indexOf(a); sb.value = b;
     const h = -b / (2 * a), k = a > 0 ? -3 : 3;
     el.querySelector("#eq").innerHTML = stdHTML(a, b, 0, true);
     el.querySelector("#va").textContent = a; el.querySelector("#vb").textContent = b;
-    el.querySelector("#vr").innerHTML = `a = ${fmtN(a)} &nbsp; b = ${fmtN(b)} &nbsp; → &nbsp; <b>vertex x = ${fmtN(h)}</b>`;
+    el.querySelector("#vr").innerHTML = `x = −${par(b)} ÷ (2 · ${par(a)}) = <b>${fmtN(h)}</b>`;
     draw(cv, { curves: [{ a, h, k }], points: [{ x: h, y: k, kind: "vertex" }] });
   };
   sa.oninput = () => { a = A[+sa.value]; show(); }; sb.oninput = () => { b = +sb.value; show(); };
-  [["t1", 1, 10], ["t2", 2, 4], ["t3", -1, -6]].forEach(([id, x, y]) => el.querySelector("#" + id).onclick = () => { a = x; b = y; show(); });
   window.__redraw = show; show();
-  el.insertAdjacentHTML("beforeend", `<p class="small muted">c only moves the graph up or down, so it does not change the vertex x.</p>`);
-  question(el, "Which rule gives the vertex x every time?", ["x = b ÷ 2", "x = −b ÷ (2a)", "x = 2a ÷ b"], "x = −b ÷ (2a)",
-    "The vertex x is x = −b/(2a). For a = 1, b = 10: −10 ÷ 2 = −5.",
-    () => numCheck(el, `<h2>Use it! For y = 2x² + 4x + 2, find the vertex x.</h2>
-      <div class="vin">x = −4 ÷ (2 · 2) = <input id="fx" inputmode="decimal" aria-label="vertex x"></div>`,
-      [["fx", -1]], "x = −4 ÷ 4 = −1.", "Not yet. Multiply 2 · 2 first, then divide −4 by that."));
+  numCheck(el, `<h2>Your turn! For y = 2x² + 4x + 2, find the vertex x.</h2>
+    <div class="vin">x = −4 ÷ (2 · 2) = <input id="fx" inputmode="decimal" aria-label="vertex x"></div>`,
+    [["fx", -1]], "x = −4 ÷ 4 = −1.", "Not yet. Multiply 2 · 2 first, then divide −4 by that.",
+    () => numCheck(el, `<h2>One more. For y = −x² − 6x − 5, find the vertex x.</h2>
+      <div class="vin">x = −(−6) ÷ (2 · (−1)) = <input id="fx2" inputmode="decimal" aria-label="vertex x"></div>
+      <p class="small muted">Careful: −(−6) = 6.</p>`,
+      [["fx2", -3]], "x = 6 ÷ (−2) = −3.", "Not yet. −(−6) is 6, and 2 · (−1) is −2. Now divide."));
 }
 
 function stepPlug(el) {
