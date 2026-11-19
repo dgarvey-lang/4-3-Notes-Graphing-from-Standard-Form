@@ -367,27 +367,43 @@ function stepStandard(el) {
       "In vertex form the vertex is easy to read. In standard form it is hidden, so we need a formula to find it. When graphing, we will always change the equation into VERTEX FORM."));
 }
 
+// x -> y -> vertex form for one equation
+function vertexChain(el, a, b, c, p, n, xHint, onDone) {
+  const [h, k] = vtx(a, b, c);
+  numCheck(el, `<h2>${n}a. For ${stdHTML(a, b, c)}, find the vertex x.</h2>
+    <div class="vin">x = −${par(b)} ÷ (2 · ${par(a)}) = <input id="${p}x" inputmode="decimal" aria-label="vertex x"></div>
+    ${xHint ? `<p class="small muted">${xHint}</p>` : ""}`,
+    [[p + "x", h]], `x = ${fmtN(-b)} ÷ ${fmtN(2 * a)} = ${fmtN(h)}.`, `Not yet. −b is ${fmtN(-b)} and 2 · a is ${fmtN(2 * a)}. Now divide.`,
+    () => numCheck(el, `<h2>${n}b. Now find the vertex y.</h2>
+      <div class="remind">Put the x value into the <b>original equation</b> to find y. Always use parentheses!</div>
+      <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="${p}y" inputmode="decimal" aria-label="vertex y"></div>`,
+      [[p + "y", k]], `y = ${fmtN(k)}. The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Use your calculator or Desmos.",
+      () => numCheck(el, `<h2>${n}c. Now you have the vertex and a. Write it in vertex form.</h2>
+        <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. &nbsp;Vertex: (${fmtN(h)}, ${fmtN(k)})</div>
+        <div class="vin">y = <input id="${p}a" inputmode="decimal" aria-label="a"> (x − <input id="${p}h" inputmode="decimal" aria-label="h">)² + <input id="${p}k" inputmode="decimal" aria-label="k"></div>`,
+        [[p + "a", a], [p + "h", h], [p + "k", k]], `y = ${fmtA(a)}(x − ${par(h)})² + ${par(k)} simplifies to ${eqHTML(a, h, k).replace(/<[^>]+>/g, "")}.`,
+        "Not yet. a stays the same. h is the vertex x and k is the vertex y.", onDone)));
+}
+
 function stepFormula(el) {
-  el.innerHTML = `<h1>Finding the vertex x</h1>
+  el.innerHTML = `<h1>Finding the vertex</h1>
     <p class="big">To find the x value of the vertex, use this formula:</p>
     <div class="formula">x = <span class="frac"><span class="num">−<span class="bbv">b</span></span><span class="den">2<span class="av">a</span></span></span></div>
+    <p class="big">Then put that x value into the <b>original equation</b> to find y. Now you have the vertex (h, k) and the a value, so you can write the equation in <b>vertex form</b>.</p>
     <div class="ex">
-      <div class="small muted">Example: y = x² + 10x + 22 &nbsp;(a = 1, b = 10)</div>
-      <div class="eqline">x = −10 ÷ (2 · 1) = −10 ÷ 2 = −5</div>
+      <div class="small muted">Example: y = x² + 10x + 22 &nbsp;(a = 1, b = 10, c = 22)</div>
+      <div class="eqline">x = −10 ÷ (2 · 1) = −5</div>
+      <div class="eqline">y = (−5)² + 10(−5) + 22 = −3</div>
+      <div class="eqline">y = (x + 5)² − 3</div>
     </div>`;
   window.__redraw = null;
-  numCheck(el, `<h2>Your turn! For y = 2x² + 4x + 2, find the vertex x.</h2>
-    <div class="vin">x = −4 ÷ (2 · 2) = <input id="fx" inputmode="decimal" aria-label="vertex x"></div>`,
-    [["fx", -1]], "x = −4 ÷ 4 = −1.", "Not yet. Multiply 2 · 2 first, then divide −4 by that.",
-    () => numCheck(el, `<h2>One more. For y = −x² − 6x − 5, find the vertex x.</h2>
-      <div class="vin">x = −(−6) ÷ (2 · (−1)) = <input id="fx2" inputmode="decimal" aria-label="vertex x"></div>
-      <p class="small muted">Careful: −(−6) = 6.</p>`,
-      [["fx2", -3]], "x = 6 ÷ (−2) = −3.", "Not yet. −(−6) is 6, and 2 · (−1) is −2. Now divide."));
+  vertexChain(el, 2, 4, 2, "q1", 1, "", () =>
+    vertexChain(el, -1, -6, -5, "q2", 2, "Careful: −(−6) = 6."));
 }
 
 function stepPlug(el) {
   el.innerHTML = `<h1>Find the vertex y, then write vertex form</h1>
-    <p class="big">Plug the x value back into the equation. <b>Always put the x value in parentheses.</b> Use your calculator or Desmos.</p>
+    <p class="big">Put the x value into the <b>original equation</b> to find y. <b>Always put the x value in parentheses.</b> Use your calculator or Desmos.</p>
     <div class="eq">${stdHTML(1, 10, 22)}</div>
     <p class="big">We found x = −5. So:</p>`;
   window.__redraw = null;
@@ -451,7 +467,7 @@ function problem(el, [a, b, c], title) {
     () => numCheck(el, `<h2>2. Find the vertex x.</h2>
       <div class="vin">x = −b ÷ (2a) = −${par(b)} ÷ (2 · ${par(a)}) = <input id="vx" inputmode="decimal" aria-label="vertex x"></div>`,
       [["vx", h]], `x = ${fmtN(-b)} ÷ ${fmtN(2 * a)} = ${fmtN(h)}.`, `Not yet. First find 2 · a = ${fmtN(2 * a)}. Then divide −b by it. Watch the signs!`,
-      () => numCheck(el, `<h2>3. Plug in x = ${fmtN(h)} to find the vertex y.</h2>
+      () => numCheck(el, `<h2>3. Put x = ${fmtN(h)} into the original equation to find the vertex y.</h2>
         <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="vy" inputmode="decimal" aria-label="vertex y"></div>
         <p class="small muted">Use your calculator or Desmos.</p>`,
         [["vy", k]], `The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Keep the parentheses!",
