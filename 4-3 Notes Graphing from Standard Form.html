@@ -1,0 +1,576 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>4-3 Notes Graphing from Standard Form</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Lexend:wght@500;700&family=Atkinson+Hyperlegible:wght@400;700&display=swap">
+<style>
+/* Layout: one centered column, one step at a time, graph paper card + controls below */
+:root {
+  --bg: #f3f6f8;
+  --paper: #ffffff;
+  --ink: #1d2a33;
+  --muted: #5b6b76;
+  --grid: #e1e8ed;
+  --axis: #8a9aa5;
+  --parent: #a3b1ba;
+  --accent: #1f6fd1;
+  --accent-soft: #e3eefb;
+  --good: #1f8a4c;
+  --good-soft: #e2f4e9;
+  --bad: #b8432f;
+  --bad-soft: #fbe7e3;
+  --line: #d3dce2;
+  --balloon: #f2667a;
+  --balloon-edge: #c23a50;
+  --hand: #f3d2b3;
+  --over: #d9822b;
+  --up: #7a4fd0;
+  --display: "Lexend", system-ui, sans-serif;
+  --body: "Atkinson Hyperlegible", system-ui, sans-serif;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #12181d; --paper: #1a232a; --ink: #e6edf2; --muted: #9aaab5; --grid: #26323b; --axis: #5d6f7b;
+  --parent: #5f707b; --accent: #6aa8f5; --accent-soft: #1d3149; --good: #5cc98a; --good-soft: #17352a;
+  --bad: #f08a76; --bad-soft: #3d221d; --line: #2c3a44; --balloon: #e8566c; --balloon-edge: #ffa3b0; --hand: #c9a487; --over: #f0a65a; --up: #ad8cf2; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #12181d; --paper: #1a232a; --ink: #e6edf2; --muted: #9aaab5; --grid: #26323b; --axis: #5d6f7b;
+  --parent: #5f707b; --accent: #6aa8f5; --accent-soft: #1d3149; --good: #5cc98a; --good-soft: #17352a;
+  --bad: #f08a76; --bad-soft: #3d221d; --line: #2c3a44; --balloon: #e8566c; --balloon-edge: #ffa3b0; --hand: #c9a487; --over: #f0a65a; --up: #ad8cf2; color-scheme: dark }
+
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--body); font-size: 17px; line-height: 1.5; }
+.wrap { max-width: 720px; margin: 0 auto; padding-block: 20px 48px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: flex; flex-direction: column; gap: 18px; }
+header { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.lesson { font-family: var(--display); font-weight: 700; font-size: 15px; color: var(--muted); letter-spacing: .04em; text-transform: uppercase; }
+.dots { display: flex; gap: 6px; }
+.dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); border: 0; padding: 0; cursor: pointer; }
+.dot.on { background: var(--accent); }
+.dot.done { background: var(--good); }
+h1 { font-family: var(--display); font-size: clamp(24px, 5vw, 32px); line-height: 1.2; margin: 0; text-wrap: balance; }
+p { margin: 0; max-width: 62ch; }
+.muted { color: var(--muted); }
+.eq { font-family: var(--display); font-weight: 500; font-size: clamp(22px, 5vw, 30px); text-align: center; padding: 6px 0; }
+.eq .a { color: var(--accent); }
+.graph { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 8px; }
+canvas { display: block; width: 100%; aspect-ratio: 1 / 1; max-width: 100%; max-width: 560px; margin: 0 auto; }
+.legend { display: flex; gap: 18px; justify-content: center; font-size: 14px; color: var(--muted); flex-wrap: wrap; padding-top: 4px; }
+.legend span::before { content: ""; display: inline-block; width: 18px; height: 0; border-top: 3px solid var(--accent); vertical-align: middle; margin-right: 6px; }
+.legend .par::before { border-top: 3px dashed var(--parent); }
+.ctrl { display: flex; flex-direction: column; gap: 6px; }
+.ctrl label { font-weight: 700; }
+input[type=range] { width: 100%; accent-color: var(--accent); height: 28px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+.chips .lbl { font-size: 14px; color: var(--muted); margin-right: 2px; }
+button { font: inherit; cursor: pointer; }
+.chip { background: var(--accent-soft); color: var(--ink); border: 1px solid transparent; border-radius: 999px; padding: 6px 14px; font-family: var(--display); font-size: 15px; }
+.chip:hover { border-color: var(--accent); }
+button:focus-visible, input:focus-visible { outline: 3px solid var(--accent); outline-offset: 2px; }
+.q { border-top: 1px solid var(--line); padding-top: 16px; display: flex; flex-direction: column; gap: 10px; }
+.q h2 { font-family: var(--display); font-size: 19px; margin: 0; font-weight: 700; }
+.opts { display: flex; flex-wrap: wrap; gap: 8px; }
+.opt { background: var(--paper); color: var(--ink); border: 2px solid var(--line); border-radius: 8px; padding: 8px 16px; }
+.opt:hover { border-color: var(--accent); }
+.opt.right { border-color: var(--good); background: var(--good-soft); }
+.opt.wrong { border-color: var(--bad); background: var(--bad-soft); }
+.fb { min-height: 1.5em; font-weight: 700; }
+.fb.right { color: var(--good); }
+.fb.wrong { color: var(--bad); }
+.nav { display: flex; justify-content: space-between; gap: 12px; padding-top: 8px; }
+.btn { background: var(--accent); color: var(--paper); border: 0; border-radius: 8px; padding: 10px 22px; font-family: var(--display); font-weight: 500; }
+.btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line); }
+.btn:disabled { opacity: .35; cursor: default; }
+.rule { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 8px; }
+.rule div { display: flex; gap: 10px; flex-wrap: wrap; }
+.rule b { font-family: var(--display); min-width: 9.5em; }
+.vin { display: flex; align-items: center; gap: 6px; font-family: var(--display); font-size: 20px; flex-wrap: wrap; }
+.vin input { width: 4.2em; font: inherit; font-size: 18px; padding: 4px 8px; border: 2px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); text-align: center; }
+.small { font-size: 14px; }
+[hidden] { display: none !important; }
+p.big { font-size: 21px; line-height: 1.5; }
+h1.big { font-size: clamp(28px, 6vw, 38px); }
+.graph.mini { max-width: 340px; width: 100%; margin: 0 auto; }
+.graph.mid { max-width: 420px; width: 100%; margin: 0 auto; }
+.bcap { font-family: var(--display); font-weight: 700; font-size: 22px; text-align: center; color: var(--accent); min-height: 1.4em; }
+.notes { background: var(--accent-soft); border-radius: 10px; padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+.notes h2 { font-family: var(--display); font-size: 20px; margin: 0; }
+.checks { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 8px; }
+.checks label { display: flex; align-items: center; gap: 10px; background: var(--paper); border: 1px solid var(--line); border-radius: 8px; padding: 8px 12px; cursor: pointer; }
+.checks input { width: 20px; height: 20px; accent-color: var(--good); }
+.finish { display: flex; align-items: center; gap: 16px; background: var(--good-soft); border: 2px solid var(--good); border-radius: 10px; padding: 16px; }
+.finish b { display: block; font-family: var(--display); font-size: 24px; color: var(--good); }
+.badge { flex: none; width: 56px; height: 56px; border-radius: 50%; background: var(--good); color: var(--paper); display: grid; place-items: center; font-size: 32px; font-weight: 700; }
+@media (prefers-reduced-motion: no-preference) { .step { animation: in .25s ease-out; } @keyframes in { from { opacity: .4; transform: translateY(6px); } } }
+
+.btn.sm { font-size: 15px; padding: 8px 18px; }
+.pat { border-collapse: collapse; width: 100%; max-width: 460px; font-size: 18px; }
+.pat th, .pat td { border: 1px solid var(--line); padding: 8px 12px; text-align: left; background: var(--paper); }
+.pat th { background: var(--accent-soft); font-family: var(--display); font-size: 15px; }
+.pat input { width: 4em; font: inherit; padding: 2px 6px; border: 2px solid var(--line); border-radius: 6px; background: var(--paper); color: var(--ink); text-align: center; }
+.pat input.good, .vin input.good { border-color: var(--good); background: var(--good-soft); }
+.pat input.badin { border-color: var(--bad); background: var(--bad-soft); }
+.legend .ov::before { border-top: 3px dashed var(--over); }
+.legend .upk::before { border-top: 3px dashed var(--up); }
+.patline { font-family: var(--display); font-size: 18px; text-align: center; max-width: none; }
+.opt.sel { border-color: var(--accent); background: var(--accent-soft); }
+canvas.tap { cursor: crosshair; touch-action: manipulation; }
+.plotbox { width: 100%; max-width: min(680px, calc(100vh - 130px)); margin: 0 auto; }
+.plotbox canvas { max-width: 100%; }
+html, body { overflow-x: clip; }
+.plotrow { display: flex; flex-direction: column; gap: 16px; align-items: center; }
+.plotrow.haspanel { width: min(1080px, calc(100vw - 32px)); position: relative; left: 50%; transform: translateX(-50%); }
+.mult { background: var(--accent-soft); border-radius: 10px; padding: 14px 16px; display: flex; flex-direction: column; gap: 10px; width: 100%; max-width: 460px; }
+.mult h3 { font-family: var(--display); font-size: 20px; margin: 0; }
+.mult .pat { font-size: 16px; }
+.mult .pat td, .mult .pat th { padding: 6px 8px; }
+.mult .pat input { width: 3.6em; }
+@media (min-width: 900px) {
+  .plotrow.haspanel { flex-direction: row; align-items: flex-start; justify-content: center; }
+  .plotrow.haspanel .plotbox { flex: 0 1 auto; width: 100%; margin: 0; }
+  .mult { flex: 0 0 340px; }
+}
+.ploteq { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 5vw, 30px); text-align: center; padding: 4px 0 8px; }
+.plothint { font-size: 15px; color: var(--muted); text-align: center; padding-bottom: 6px; }
+.rule.steps span { line-height: 1.6; }
+.eq .bb { color: var(--up); }
+.eq .cc { color: var(--over); }
+.vread { font-family: var(--display); font-size: 20px; text-align: center; }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <header>
+    <div class="lesson">4.3 · Graphing from Standard Form</div>
+    <div class="dots" id="dots"></div>
+  </header>
+  <main id="step" class="step" style="display:flex;flex-direction:column;gap:16px"></main>
+  <div class="nav">
+    <button class="btn ghost" id="back">← Back</button>
+    <button class="btn" id="next">Next →</button>
+  </div>
+</div>
+
+<script>
+// ---------- helpers ----------
+const FR = { "-0.5": "−½", "0.5": "½" };
+function fmtA(a) {
+  if (a === 1) return "";
+  if (a === -1) return "−";
+  if (FR[String(a)]) return FR[String(a)];
+  return a < 0 ? "−" + (-a) : String(a);
+}
+function fmtN(v) { // number for display: 0.5 -> ½, -2 -> −2
+  const s = Math.abs(v) % 1 === 0.5 ? (Math.abs(v) === 0.5 ? "½" : Math.floor(Math.abs(v)) + "½") : String(Math.abs(v));
+  return (v < 0 ? "−" : "") + s;
+}
+function eqHTML(a, h, k) {
+  const A = `<span class="a">${fmtA(a)}</span>`;
+  const core = h === 0 ? "x²" : `(x ${h > 0 ? "−" : "+"} ${Math.abs(h)})²`;
+  let s = `y = ${A}${core}`;
+  if (k !== 0) s += ` ${k > 0 ? "+" : "−"} ${Math.abs(k)}`;
+  return s;
+}
+function css(n) { return getComputedStyle(document.documentElement).getPropertyValue(n).trim(); }
+function parseNum(s) {
+  s = String(s).trim().replace(/−/g, "-").replace(/\s+/g, "").replace("½", "1/2");
+  if (s === "") return NaN;
+  if (s.includes("/")) { const [p, q] = s.split("/"); return +p / +q; }
+  return +s;
+}
+
+// ---------- graph ----------
+// opts: curves [{a,h,k,parent}], points [{x,y,kind}], pattern {a,h,k,n}
+function draw(cv, o) {
+  const dpr = window.devicePixelRatio || 1, r = cv.getBoundingClientRect();
+  const W = Math.max(200, r.width), H = Math.max(200, r.height);
+  cv.width = W * dpr; cv.height = H * dpr;
+  const g = cv.getContext("2d"); g.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const R = 10, sx = x => (x + R) / (2 * R) * W, sy = y => H - (y + R) / (2 * R) * H;
+  g.fillStyle = css("--paper"); g.fillRect(0, 0, W, H);
+  g.lineWidth = 1; g.strokeStyle = css("--grid");
+  for (let i = -R; i <= R; i++) { g.beginPath(); g.moveTo(sx(i), 0); g.lineTo(sx(i), H); g.moveTo(0, sy(i)); g.lineTo(W, sy(i)); g.stroke(); }
+  g.strokeStyle = css("--axis"); g.lineWidth = 1.5;
+  g.beginPath(); g.moveTo(sx(0), 0); g.lineTo(sx(0), H); g.moveTo(0, sy(0)); g.lineTo(W, sy(0)); g.stroke();
+  g.fillStyle = css("--muted"); g.font = "11px system-ui, sans-serif"; g.textAlign = "center"; g.textBaseline = "top";
+  for (let i = -R + 2; i < R; i += 2) if (i) g.fillText(i, sx(i), sy(0) + 3);
+  g.textAlign = "right"; g.textBaseline = "middle";
+  for (let i = -R + 2; i < R; i += 2) if (i) g.fillText(i, sx(0) - 4, sy(i));
+  for (const c of o.curves || []) {
+    g.save(); g.strokeStyle = c.parent ? css("--parent") : css("--accent"); g.lineWidth = c.parent ? 2.5 : 3.5;
+    if (c.parent) g.setLineDash([7, 6]);
+    g.beginPath(); let first = true;
+    for (let px = 0; px <= W; px++) {
+      const x = px / W * 2 * R - R, y = c.a * (x - c.h) ** 2 + c.k;
+      if (y > R + 2 || y < -R - 2) { first = true; continue; }
+      first ? g.moveTo(px, sy(y)) : g.lineTo(px, sy(y)); first = false;
+    }
+    g.stroke(); g.restore();
+  }
+  if (o.pattern) {
+    const { a, h, k } = o.pattern, n = o.pattern.n || 2;
+    g.save(); g.lineWidth = 2.5; g.setLineDash([5, 4]);
+    for (let i = 1; i <= n; i++) {
+      const y2 = k + a * i * i; if (Math.abs(y2) > R) continue;
+      g.strokeStyle = css("--over"); g.beginPath(); g.moveTo(sx(h), sy(k)); g.lineTo(sx(h + i), sy(k)); g.stroke();
+      g.strokeStyle = css("--up"); g.beginPath(); g.moveTo(sx(h + i), sy(k)); g.lineTo(sx(h + i), sy(y2)); g.stroke();
+    }
+    g.restore();
+  }
+  for (const p of o.points || []) {
+    g.fillStyle = p.kind === "wrong" ? css("--bad") : p.kind === "user" ? css("--ink") : p.kind === "vertex" ? css("--accent") : p.kind === "yint" ? css("--good") : css("--ink");
+    g.beginPath(); g.arc(sx(p.x), sy(p.y), p.kind === "vertex" || p.kind === "yint" ? 7 : 5.5, 0, 7); g.fill();
+  }
+  return { sx, sy, W, H, R };
+}
+const ptsFor = (a, h, k, n = 2) => {
+  const out = [{ x: h, y: k, kind: "vertex" }];
+  for (let i = 1; i <= n; i++) for (const s of [-1, 1]) { const y = k + a * i * i; if (Math.abs(y) <= 10 && Math.abs(h + s * i) <= 10) out.push({ x: h + s * i, y }); }
+  return out;
+};
+
+// ---------- question widget ----------
+function question(el, prompt, options, correct, why, onRight) {
+  const q = document.createElement("div"); q.className = "q";
+  q.innerHTML = `<h2>${prompt}</h2><div class="opts"></div><div class="fb" aria-live="polite"></div>`;
+  const opts = q.querySelector(".opts"), fb = q.querySelector(".fb");
+  let done = false;
+  options.forEach(o => {
+    const b = document.createElement("button"); b.className = "opt"; b.textContent = o;
+    b.onclick = () => {
+      opts.querySelectorAll(".opt").forEach(x => x.classList.remove("wrong"));
+      if (o === correct) { b.classList.add("right"); fb.className = "fb right"; fb.textContent = "Yes! " + why; if (!done) { done = true; onRight && onRight(); } }
+      else { b.classList.add("wrong"); fb.className = "fb wrong"; fb.textContent = "Not quite. Look at the graph again and try another answer."; }
+    };
+    opts.appendChild(b);
+  });
+  el.appendChild(q);
+}
+
+// fill-in pattern table: rows [[over, answer]], label "up"/"down"
+function patternQuiz(el, title, rows, dir, why, onRight) {
+  const q = document.createElement("div"); q.className = "q";
+  q.innerHTML = `<h2>${title}</h2>
+    <table class="pat"><thead><tr><th>From the vertex, go…</th><th>Then go ${dir}…</th></tr></thead><tbody></tbody></table>
+    <div><button class="btn sm">Check</button></div><div class="fb" aria-live="polite"></div>`;
+  const tb = q.querySelector("tbody"), fb = q.querySelector(".fb");
+  rows.forEach(([over], i) => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `<td>over <b>${over}</b></td><td>${dir} <input id="pq${title.length}_${i}" inputmode="decimal" aria-label="${dir} amount for over ${over}"></td>`;
+    tb.appendChild(tr);
+  });
+  let done = false;
+  q.querySelector(".btn").onclick = () => {
+    const ins = [...tb.querySelectorAll("input")];
+    let ok = true;
+    ins.forEach((inp, i) => { const good = Math.abs(parseNum(inp.value) - rows[i][1]) < 1e-9; inp.classList.toggle("good", good); inp.classList.toggle("badin", !good); ok = ok && good; });
+    fb.className = "fb " + (ok ? "right" : "wrong");
+    fb.textContent = ok ? "Yes! " + why : "Not yet. Count the boxes on the graph, starting at the vertex.";
+    if (ok && !done) { done = true; onRight && onRight(); }
+  };
+  el.appendChild(q);
+}
+
+// ---------- standard form helpers ----------
+function stdHTML(a, b, c, lit) {
+  const A = a === 1 ? "" : a === -1 ? "−" : fmtN(a);
+  let s = `y = <span class="a">${A}</span>x²`;
+  if (b !== 0) s += ` ${b > 0 ? "+" : "−"} <span class="bb">${Math.abs(b) === 1 ? "" : fmtN(Math.abs(b))}</span>x`;
+  if (lit) s += ` + <span class="cc">c</span>`;
+  else if (c !== 0) s += ` ${c > 0 ? "+" : "−"} <span class="cc">${fmtN(Math.abs(c))}</span>`;
+  return s;
+}
+const par = v => v < 0 ? `(${fmtN(v)})` : `(${fmtN(v)})`;
+function plugHTML(a, b, c, x) {
+  const A = a === 1 ? "" : a === -1 ? "−" : fmtN(a);
+  let s = `${A}${par(x)}²`;
+  if (b !== 0) s += ` ${b > 0 ? "+" : "−"} ${fmtN(Math.abs(b))}${par(x)}`;
+  if (c !== 0) s += ` ${c > 0 ? "+" : "−"} ${fmtN(Math.abs(c))}`;
+  return s;
+}
+const vtx = (a, b, c) => { const h = -b / (2 * a); return [h, a * h * h + b * h + c]; };
+function numCheck(el, html, answers, okMsg, badMsg, onRight) {
+  const q = document.createElement("div"); q.className = "q";
+  q.innerHTML = html + `<div><button class="btn sm">Check</button></div><div class="fb" aria-live="polite"></div>`;
+  const fb = q.querySelector(".fb"); let done = false;
+  q.querySelector(".btn").onclick = () => {
+    let ok = true;
+    answers.forEach(([id, v]) => { const inp = q.querySelector("#" + id), good = Math.abs(parseNum(inp.value) - v) < 1e-9; inp.classList.toggle("good", good); inp.classList.toggle("badin", !good); ok = ok && good; });
+    fb.className = "fb " + (ok ? "right" : "wrong");
+    fb.textContent = ok ? "Yes! " + okMsg : badMsg;
+    if (ok && !done) { done = true; onRight && onRight(); }
+  };
+  el.appendChild(q);
+  return q;
+}
+
+// ---------- steps ----------
+function stepStandard(el) {
+  el.innerHTML = `<h1 class="big">Standard form</h1>
+    <p class="big">A quadratic in <b>standard form</b> looks like this:</p>
+    <div class="eq">y = <span class="a">a</span>x² + <span class="bb">b</span>x + <span class="cc">c</span></div>
+    <p class="big">Here is one: <b>${stdHTML(1, 10, 22)}</b></p>
+    <div class="graph mini"><canvas id="cv"></canvas></div>`;
+  const cv = el.querySelector("#cv");
+  window.__redraw = () => draw(cv, { curves: [{ a: 1, h: -5, k: -3 }], points: [{ x: -5, y: -3, kind: "vertex" }] });
+  window.__redraw();
+  numCheck(el, `<h2>What are a, b, and c in y = x² + 10x + 22?</h2>
+    <div class="vin">a = <input id="ia" inputmode="decimal" aria-label="a"> b = <input id="ib" inputmode="decimal" aria-label="b"> c = <input id="ic" inputmode="decimal" aria-label="c"></div>
+    <p class="small muted">If there is no number in front of x², a = 1.</p>`,
+    [["ia", 1], ["ib", 10], ["ic", 22]], "a = 1, b = 10, c = 22.", "Not yet. a is in front of x², b is in front of x, and c is the number by itself.",
+    () => question(el, "Can you read the vertex just by looking at y = x² + 10x + 22?", ["Yes", "No"], "No",
+      "In vertex form the vertex is easy to read. In standard form it is hidden, so we need a formula to find it. When graphing, we will always change the equation into VERTEX FORM."));
+}
+
+function stepFormula(el) {
+  const A = [-2, -1, 1, 2]; let a = 1, b = 10;
+  el.innerHTML = `<h1>Finding the vertex x</h1>
+    <p>Move the sliders for <b>a</b> and <b>b</b>. Watch the x value of the vertex. Can you find the rule?</p>
+    <div class="eq" id="eq"></div>
+    <div class="graph mid"><canvas id="cv"></canvas></div>
+    <div class="vread" id="vr"></div>
+    <div class="ctrl"><label for="sa">a: <span id="va"></span></label><input type="range" id="sa" min="0" max="3" step="1"></div>
+    <div class="ctrl"><label for="sb">b: <span id="vb"></span></label><input type="range" id="sb" min="-10" max="10" step="2"></div>
+    <div class="chips"><span class="lbl">Try:</span><button class="chip" id="t1">a = 1, b = 10</button><button class="chip" id="t2">a = 2, b = 4</button><button class="chip" id="t3">a = −1, b = −6</button></div>`;
+  const cv = el.querySelector("#cv"), sa = el.querySelector("#sa"), sb = el.querySelector("#sb");
+  const show = () => {
+    sa.value = A.indexOf(a); sb.value = b;
+    const h = -b / (2 * a), k = a > 0 ? -3 : 3;
+    el.querySelector("#eq").innerHTML = stdHTML(a, b, 0, true);
+    el.querySelector("#va").textContent = a; el.querySelector("#vb").textContent = b;
+    el.querySelector("#vr").innerHTML = `a = ${fmtN(a)} &nbsp; b = ${fmtN(b)} &nbsp; → &nbsp; <b>vertex x = ${fmtN(h)}</b>`;
+    draw(cv, { curves: [{ a, h, k }], points: [{ x: h, y: k, kind: "vertex" }] });
+  };
+  sa.oninput = () => { a = A[+sa.value]; show(); }; sb.oninput = () => { b = +sb.value; show(); };
+  [["t1", 1, 10], ["t2", 2, 4], ["t3", -1, -6]].forEach(([id, x, y]) => el.querySelector("#" + id).onclick = () => { a = x; b = y; show(); });
+  window.__redraw = show; show();
+  el.insertAdjacentHTML("beforeend", `<p class="small muted">c only moves the graph up or down, so it does not change the vertex x.</p>`);
+  question(el, "Which rule gives the vertex x every time?", ["x = b ÷ 2", "x = −b ÷ (2a)", "x = 2a ÷ b"], "x = −b ÷ (2a)",
+    "The vertex x is x = −b/(2a). For a = 1, b = 10: −10 ÷ 2 = −5.",
+    () => numCheck(el, `<h2>Use it! For y = 2x² + 4x + 2, find the vertex x.</h2>
+      <div class="vin">x = −4 ÷ (2 · 2) = <input id="fx" inputmode="decimal" aria-label="vertex x"></div>`,
+      [["fx", -1]], "x = −4 ÷ 4 = −1.", "Not yet. Multiply 2 · 2 first, then divide −4 by that."));
+}
+
+function stepPlug(el) {
+  el.innerHTML = `<h1>Then find the vertex y</h1>
+    <p class="big">Plug the x value back into the equation. <b>Always put the x value in parentheses.</b> Use your calculator or Desmos.</p>
+    <div class="eq">${stdHTML(1, 10, 22)}</div>
+    <p class="big">We found x = −5. So:</p>`;
+  numCheck(el, `<h2>Find y.</h2><div class="vin">y = ${plugHTML(1, 10, 22, -5)} = <input id="py" inputmode="decimal" aria-label="y value"></div>`,
+    [["py", -3]], "25 − 50 + 22 = −3. The vertex is (−5, −3).", "Not yet. (−5)² = 25 and 10(−5) = −50. Then add 22.",
+    () => {
+      const g = document.createElement("div"); g.innerHTML = `<div class="graph mini"><canvas id="cv"></canvas></div>`; el.appendChild(g);
+      const cv = g.querySelector("#cv");
+      window.__redraw = () => draw(cv, { curves: [{ a: 1, h: -5, k: -3 }], points: [{ x: -5, y: -3, kind: "vertex" }] });
+      window.__redraw();
+      question(el, "Now write it in vertex form. a = 1 and the vertex is (−5, −3).", ["y = (x − 5)² − 3", "y = (x + 5)² − 3", "y = (x + 5)² + 3"], "y = (x + 5)² − 3",
+        "y = (x − (−5))² + (−3) simplifies to y = (x + 5)² − 3. Put h in parentheses to get the sign right!");
+    });
+  window.__redraw = null;
+}
+
+function stepIntercept(el) {
+  let c = 3; const a = 1, b = 2;
+  el.innerHTML = `<h1>What does c tell you?</h1>
+    <p>Move the <b>c</b> slider. Watch where the graph crosses the <b>y-axis</b>.</p>
+    <div class="eq" id="eq"></div>
+    <div class="graph mid"><canvas id="cv"></canvas></div>
+    <div class="vread" id="vr"></div>
+    <div class="ctrl"><label for="sc">c: <span id="vc"></span></label><input type="range" id="sc" min="-7" max="8" step="1"></div>`;
+  const cv = el.querySelector("#cv"), sc = el.querySelector("#sc"); sc.value = c;
+  const show = () => {
+    el.querySelector("#eq").innerHTML = stdHTML(a, b, c);
+    el.querySelector("#vc").textContent = c;
+    el.querySelector("#vr").innerHTML = `Crosses the y-axis at <b>(0, ${fmtN(c)})</b>`;
+    const [h, k] = vtx(a, b, c);
+    draw(cv, { curves: [{ a, h, k }], points: [{ x: 0, y: c, kind: "yint" }] });
+  };
+  sc.oninput = () => { c = +sc.value; show(); };
+  window.__redraw = show; show();
+  question(el, "y = x² + 2x + 3 crosses the y-axis at…", ["(3, 0)", "(0, 3)", "(0, 2)"], "(0, 3)",
+    "The c value is always the y-intercept when the equation is in standard form. It is a great way to check your graph!");
+}
+
+function stepRules(el) {
+  el.innerHTML = `<h1>How to graph from standard form</h1>
+    <div class="eq">y = <span class="a">a</span>x² + <span class="bb">b</span>x + <span class="cc">c</span></div>
+    <div class="rule steps">
+      <div><b>1. Find a, b, c</b><span>a is in front of x², b is in front of x, c is by itself</span></div>
+      <div><b>2. Vertex x</b><span>x = −b ÷ (2a)</span></div>
+      <div><b>3. Vertex y</b><span>plug x into the equation (use parentheses!)</span></div>
+      <div><b>4. Vertex form</b><span>y = a(x − h)² + k. Put h in parentheses to simplify.</span></div>
+      <div><b>5. Graph</b><span>plot the vertex, then use the pattern × a</span></div>
+      <div><b>6. Check</b><span>c is the y-intercept: (0, c)</span></div>
+    </div>`;
+  window.__redraw = null;
+}
+
+// ---------- guided problem ----------
+function problem(el, [a, b, c], title) {
+  const [h, k] = vtx(a, b, c);
+  el.innerHTML = `<h1>${title}</h1><div class="eq">${stdHTML(a, b, c)}</div>`;
+  window.__redraw = null;
+  const S1 = numCheck(el, `<h2>1. What are a, b, and c?</h2>
+    <div class="vin">a = <input id="ia" inputmode="decimal" aria-label="a"> b = <input id="ib" inputmode="decimal" aria-label="b"> c = <input id="ic" inputmode="decimal" aria-label="c"></div>
+    <p class="small muted">Type fractions like −1/2. Keep the signs!</p>`,
+    [["ia", a], ["ib", b], ["ic", c]], `a = ${fmtN(a)}, b = ${fmtN(b)}, c = ${fmtN(c)}.`, "Not yet. Check each sign. If there is just a minus sign in front of x², a = −1.",
+    () => numCheck(el, `<h2>2. Find the vertex x.</h2>
+      <div class="vin">x = −b ÷ (2a) = −${par(b)} ÷ (2 · ${par(a)}) = <input id="vx" inputmode="decimal" aria-label="vertex x"></div>`,
+      [["vx", h]], `x = ${fmtN(-b)} ÷ ${fmtN(2 * a)} = ${fmtN(h)}.`, `Not yet. First find 2 · a = ${fmtN(2 * a)}. Then divide −b by it. Watch the signs!`,
+      () => numCheck(el, `<h2>3. Plug in x = ${fmtN(h)} to find the vertex y.</h2>
+        <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="vy" inputmode="decimal" aria-label="vertex y"></div>
+        <p class="small muted">Use your calculator or Desmos.</p>`,
+        [["vy", k]], `The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Keep the parentheses!",
+        () => numCheck(el, `<h2>4. Write it in vertex form.</h2>
+          <div class="vin">y = <input id="fa" inputmode="decimal" aria-label="a"> (x − <input id="fh" inputmode="decimal" aria-label="h">)² + <input id="fk" inputmode="decimal" aria-label="k"></div>
+          <p class="small muted">Use a and the vertex (h, k).</p>`,
+          [["fa", a], ["fh", h], ["fk", k]], `y = ${fmtA(a)}(x − ${par(h)})² + ${par(k)} simplifies to ${eqHTML(a, h, k).replace(/<[^>]+>/g, "")}.`,
+          "Not yet. a stays the same. h is the vertex x and k is the vertex y.",
+          () => plot(el, a, h, k, "5. Graph it! Tap the grid to plot points.", () =>
+            numCheck(el, `<h2>6. Check: what is the y-intercept?</h2>
+              <div class="vin">( 0 , <input id="yi" inputmode="decimal" aria-label="y-intercept"> )</div>
+              ${Math.abs(c) > 10 ? '<p class="small muted">This one is off the grid!</p>' : ""}`,
+              [["yi", c]], `The y-intercept is (0, ${fmtN(c)}). It is the c value!`, "Hint: look at the c value in standard form."))))));
+  void S1;
+}
+
+function plot(el, a, h, k, title, onDone) {
+  const need = ptsFor(a, h, k, 2);
+  const q = document.createElement("div"); q.className = "q";
+  q.innerHTML = `<h2>${title || "Graph it! Tap the grid to plot points."}</h2>
+    <p class="small">Plot the vertex, then use the pattern to plot <b>2 points on each side</b> (over 1 and over 2). Tap a point again to remove it.</p>
+    <div class="plotrow${Math.abs(a) !== 1 ? " haspanel" : ""}">
+      <div class="graph plotbox"><div class="ploteq">${eqHTML(a, h, k)}</div><canvas id="pc" class="tap"></canvas></div>
+      ${Math.abs(a) !== 1 ? multPanel(a) : ""}
+    </div>
+    <p class="small muted" id="plist">Your points: none yet</p>
+    <div class="chips"><button class="btn sm" id="pchk">Check my graph</button><button class="chip" id="pclr">Clear</button></div>
+    <div class="fb" id="pfb" aria-live="polite"></div>`;
+  el.appendChild(q);
+  const cv = q.querySelector("#pc"), fb = q.querySelector("#pfb"), list = q.querySelector("#plist");
+  let pts = [], solved = false, marks = new Set();
+  const key = p => p.x + "," + p.y;
+  const render = () => {
+    const shown = pts.map(p => ({ ...p, kind: marks.has(key(p)) ? "wrong" : "user" }));
+    draw(cv, solved ? { curves: [{ a, h, k }], pattern: { a, h, k, n: 2 }, points: shown } : { points: shown });
+    list.textContent = "Your points: " + (pts.length ? pts.map(p => `(${fmtN(p.x)}, ${fmtN(p.y)})`).join("  ") : "none yet");
+  };
+  cv.addEventListener("click", e => {
+    if (solved) return;
+    const r = cv.getBoundingClientRect();
+    const x = Math.round(((e.clientX - r.left) / r.width * 20 - 10));
+    const y = Math.round((10 - (e.clientY - r.top) / r.height * 20) * 2) / 2;
+    const i = pts.findIndex(p => p.x === x && p.y === y);
+    if (i >= 0) pts.splice(i, 1); else pts.push({ x, y });
+    marks.clear(); render();
+  });
+  q.querySelector("#pclr").onclick = () => { if (solved) return; pts = []; marks.clear(); fb.textContent = ""; render(); };
+  q.querySelector("#pchk").onclick = () => {
+    if (solved) return;
+    const onCurve = p => Math.abs(a * (p.x - h) ** 2 + k - p.y) < 1e-9;
+    const wrong = pts.filter(p => !onCurve(p));
+    const missing = need.filter(n => !pts.some(p => p.x === n.x && p.y === n.y));
+    marks = new Set(wrong.map(key));
+    if (!wrong.length && !missing.length) {
+      solved = true; onDone && setTimeout(onDone, 0); fb.className = "fb right";
+      fb.textContent = "Great graph! All your points are on the parabola. Notice the smooth U shape.";
+    } else {
+      fb.className = "fb wrong";
+      const hasV = pts.some(p => p.x === h && p.y === k);
+      fb.textContent = (!hasV ? `Start with the vertex (${h}, ${k}). ` : "") +
+        (wrong.length ? `${wrong.length} point${wrong.length > 1 ? "s are" : " is"} not on the graph (shown in red). ` : "") +
+        (missing.length ? `You still need ${missing.length} more point${missing.length > 1 ? "s" : ""}. ` : "") +
+        `From the vertex: over 1, ${a > 0 ? "up" : "down"} ${fmtN(Math.abs(a))}; over 2, ${a > 0 ? "up" : "down"} ${fmtN(Math.abs(4 * a))}.`;
+    }
+    render();
+  };
+  window.__redraw = render; render();
+  wireMult(q, a);
+  requestAnimationFrame(() => q.querySelector(".plotrow").scrollIntoView({ behavior: matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth", block: "start" }));
+}
+
+// side panel: the standard pattern times a
+function multPanel(a) {
+  const dir = a > 0 ? "up" : "down";
+  return `<div class="mult" id="mult">
+    <h3>Pattern × a</h3>
+    <p class="small">The standard pattern is 1, 4, 9. Multiply each one by <b>a = ${fmtN(a)}</b>.</p>
+    <table class="pat"><thead><tr><th>Over</th><th>Standard</th><th>× a</th></tr></thead><tbody>
+      ${[1, 2, 3].map(i => `<tr><td>over <b>${i}</b></td><td>${i * i}</td><td>${i * i} × ${fmtN(a)} = <input id="m${i}" inputmode="decimal" aria-label="${i * i} times a"></td></tr>`).join("")}
+    </tbody></table>
+    <div><button class="btn sm" id="mchk">Check</button></div>
+    <div class="fb" id="mfb" aria-live="polite"></div>
+    <p class="small muted">${a < 0 ? "a is negative, so your answers are negative: go DOWN." : "a is positive, so go UP."} You may not be able to graph the over 3 point.</p>
+  </div>`;
+}
+function wireMult(q, a) {
+  const b = q.querySelector("#mchk"); if (!b) return;
+  b.onclick = () => {
+    let ok = true;
+    [1, 2, 3].forEach(i => {
+      const inp = q.querySelector("#m" + i), good = Math.abs(parseNum(inp.value) - i * i * a) < 1e-9;
+      inp.classList.toggle("good", good); inp.classList.toggle("badin", !good); ok = ok && good;
+    });
+    const fb = q.querySelector("#mfb");
+    fb.className = "fb " + (ok ? "right" : "wrong");
+    fb.textContent = ok ? `Yes! From the vertex: over 1 ${a > 0 ? "up" : "down"} ${fmtN(Math.abs(a))}, over 2 ${a > 0 ? "up" : "down"} ${fmtN(Math.abs(4 * a))}. Now plot those points.`
+      : "Not yet. Multiply each standard number (1, 4, 9) by a." + (a < 0 ? " Remember a is negative." : "");
+  };
+}
+
+function stepEnd(el) {
+  el.innerHTML = `<h1>Almost done!</h1>
+    <p>You can now graph a parabola from standard form.</p>
+    <div class="rule">
+      <div><b>Vertex x</b><span>x = −b ÷ (2a)</span></div>
+      <div><b>Vertex y</b><span>plug x into the equation</span></div>
+      <div><b>Vertex form</b><span>y = a(x − h)² + k, then graph with the pattern</span></div>
+      <div><b>c</b><span>is the y-intercept (0, c)</span></div>
+    </div>
+    <div class="notes">
+      <h2>Make sure your notes are filled out</h2>
+      <p>Check off each part of your <b>4-3 Notes Graphing from Standard Form</b> sheet when it is complete.</p>
+      <div class="checks" id="checks"></div>
+    </div>
+    <div class="finish" id="done" hidden>
+      <div class="badge" aria-hidden="true">✓</div>
+      <div><b>You are done!</b><span>Show your teacher your completed notes.</span></div>
+    </div>
+    <p class="muted">Need to fill something in? Tap any dot at the top to go back to that step.</p>`;
+  const parts = ["Part 1: Standard form", "Part 2: Finding the vertex x", "Part 3: Finding the vertex y", "Part 4: c is the y-intercept", "Part 5: How to graph", "Part 6: Example", "Part 7: Practice (all 3)"];
+  const box = el.querySelector("#checks"), done = el.querySelector("#done");
+  const upd = () => { done.hidden = [...box.querySelectorAll("input")].some(c => !c.checked); };
+  parts.forEach((p, i) => { const l = document.createElement("label"); l.innerHTML = `<input type="checkbox" id="np${i}"> ${p}`; l.querySelector("input").onchange = upd; box.appendChild(l); });
+  window.__redraw = null;
+}
+
+const PROBS = [[1, 10, 22], [2, 4, 2], [-0.5, 4, -12], [-1, -6, -5]];
+const steps = [stepStandard, stepFormula, stepPlug, stepIntercept, stepRules,
+  ...PROBS.map((p, i) => el => problem(el, p, i === 0 ? "Example: graph it" : `Practice ${i} of ${PROBS.length - 1}: graph it`)), stepEnd];
+
+// ---------- stepper ----------
+let cur = 0;
+const main = document.getElementById("step"), dots = document.getElementById("dots"), back = document.getElementById("back"), next = document.getElementById("next");
+steps.forEach((_, i) => { const d = document.createElement("button"); d.className = "dot"; d.setAttribute("aria-label", "Step " + (i + 1)); d.onclick = () => go(i); dots.appendChild(d); });
+function go(i) {
+  cur = Math.max(0, Math.min(steps.length - 1, i));
+  main.innerHTML = ""; main.classList.remove("step"); void main.offsetWidth; main.classList.add("step");
+  steps[cur](main);
+  [...dots.children].forEach((d, j) => { d.className = "dot" + (j === cur ? " on" : j < cur ? " done" : ""); });
+  back.disabled = cur === 0; next.disabled = cur === steps.length - 1;
+  window.scrollTo({ top: 0 });
+}
+back.onclick = () => go(cur - 1);
+next.onclick = () => go(cur + 1);
+window.addEventListener("resize", () => window.__redraw && window.__redraw());
+matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => window.__redraw && window.__redraw());
+new MutationObserver(() => window.__redraw && window.__redraw()).observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+go(0);
+</script>
+</body>
+</html>
