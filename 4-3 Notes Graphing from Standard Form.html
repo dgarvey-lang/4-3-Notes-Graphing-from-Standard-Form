@@ -147,7 +147,7 @@ html, body { overflow-x: clip; }
 .rule.abc .tb { color: var(--up); }
 .rule.abc .tc { color: var(--over); }
 .rule.abc span, .rule.order span { font-size: 18px; }
-.stepbox { background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; } .sbhead { font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 10px; } .sbnum { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 2px 12px; font-size: 15px; } .sbex { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-family: var(--display); font-size: 20px; } .sbex .small { font-family: var(--body); } .remind { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 17px; line-height: 1.6; } .remind .ah { color: var(--accent); font-weight: 700; } .formula { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--accent-soft); border-radius: 12px; padding: 14px; } .frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; } .frac .num { border-bottom: 3px solid currentColor; padding: 0 8px; } .frac .den { padding: 0 8px; } .formula .av { color: var(--accent); } .formula .bbv { color: var(--up); } .rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
+.stepbox { background: var(--paper); border: 2px solid var(--line); border-radius: 12px; padding: 14px 18px; display: flex; flex-direction: column; gap: 10px; } .sbhead { font-family: var(--display); font-weight: 700; font-size: 22px; display: flex; align-items: center; gap: 10px; } .sbnum { background: var(--accent); color: var(--paper); border-radius: 999px; padding: 2px 12px; font-size: 15px; } .sbex { background: var(--bg); border-radius: 8px; padding: 10px 14px; font-family: var(--display); font-size: 20px; } .sbex .small { font-family: var(--body); } .sbeq { font-size: clamp(22px, 5vw, 28px); } .sbeq b { color: var(--accent); } .sbsub { font-family: var(--body); font-size: 15px; color: var(--muted); margin-bottom: 4px; } .qeq { font-family: var(--display); font-weight: 700; font-size: clamp(24px, 5.5vw, 30px); color: var(--accent); } .remind { background: var(--accent-soft); border-radius: 10px; padding: 10px 14px; font-size: 17px; line-height: 1.6; } .remind .ah { color: var(--accent); font-weight: 700; } .formula { font-family: var(--display); font-weight: 700; font-size: clamp(30px, 7vw, 42px); text-align: center; display: flex; align-items: center; justify-content: center; gap: 12px; background: var(--accent-soft); border-radius: 12px; padding: 14px; } .frac { display: inline-flex; flex-direction: column; align-items: center; line-height: 1.15; } .frac .num { border-bottom: 3px solid currentColor; padding: 0 8px; } .frac .den { padding: 0 8px; } .formula .av { color: var(--accent); } .formula .bbv { color: var(--up); } .rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
 </style>
 </head>
 <body>
@@ -370,15 +370,15 @@ function stepStandard(el) {
 // x -> y -> vertex form for one equation
 function vertexChain(el, a, b, c, p, n, xHint, onDone) {
   const [h, k] = vtx(a, b, c);
-  numCheck(el, `<h2>${n}a. For ${stdHTML(a, b, c)}, find the vertex x.</h2>
+  numCheck(el, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>${n}a. Find the vertex x.</h2>
     <div class="vin">x = −${par(b)} ÷ (2 · ${par(a)}) = <input id="${p}x" inputmode="decimal" aria-label="vertex x"></div>
     ${xHint ? `<p class="small muted">${xHint}</p>` : ""}`,
     [[p + "x", h]], `x = ${fmtN(-b)} ÷ ${fmtN(2 * a)} = ${fmtN(h)}.`, `Not yet. −b is ${fmtN(-b)} and 2 · a is ${fmtN(2 * a)}. Now divide.`,
-    () => numCheck(el, `<h2>${n}b. Now find the vertex y.</h2>
+    () => numCheck(el, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>${n}b. Now find the vertex y.</h2>
       <div class="remind">Put the x value into the <b>original equation</b> to find y. Always use parentheses!</div>
       <div class="vin">y = ${plugHTML(a, b, c, h)} = <input id="${p}y" inputmode="decimal" aria-label="vertex y"></div>`,
       [[p + "y", k]], `y = ${fmtN(k)}. The vertex is (${fmtN(h)}, ${fmtN(k)}).`, "Not yet. Square the x value first, then multiply, then add. Use your calculator or Desmos.",
-      () => numCheck(el, `<h2>${n}c. Now you have the vertex and a. Write it in vertex form.</h2>
+      () => numCheck(el, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>${n}c. Now you have the vertex and a. Write it in vertex form.</h2>
         <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. &nbsp;Vertex: (${fmtN(h)}, ${fmtN(k)})</div>
         <div class="vin">y = <input id="${p}a" inputmode="decimal" aria-label="a"> (x − <input id="${p}h" inputmode="decimal" aria-label="h">)² + <input id="${p}k" inputmode="decimal" aria-label="k"></div>`,
         [[p + "a", a], [p + "h", h], [p + "k", k]], `y = ${fmtA(a)}(x − ${par(h)})² + ${par(k)} simplifies to ${eqHTML(a, h, k).replace(/<[^>]+>/g, "")}.`,
@@ -392,18 +392,18 @@ function stepFormula(el) {
       <div class="sbhead"><span class="sbnum">Step 1</span> Find the x value</div>
       <p>Use this formula:</p>
       <div class="formula">x = <span class="frac"><span class="num">−<span class="bbv">b</span></span><span class="den">2<span class="av">a</span></span></span></div>
-      <div class="sbex"><span class="small muted">Example: y = x² + 10x + 22 &nbsp;(a = 1, b = 10)</span><br><b>x = −10 ÷ (2 · 1) = −5</b></div>
+      <div class="sbex"><div class="sbeq">Example: <b>y = x² + 10x + 22</b></div><div class="sbsub">a = 1, b = 10</div><b>x = −10 ÷ (2 · 1) = −5</b></div>
     </div>
     <div class="stepbox">
       <div class="sbhead"><span class="sbnum">Step 2</span> Find the y value</div>
       <p>Put the x value into the <b>original equation</b>. Always use parentheses!</p>
-      <div class="sbex"><span class="small muted">Example: x = −5 into y = x² + 10x + 22</span><br><b>y = (−5)² + 10(−5) + 22 = −3</b></div>
+      <div class="sbex"><div class="sbeq">Example: <b>y = x² + 10x + 22</b></div><div class="sbsub">put x = −5 into the original equation</div><b>y = (−5)² + 10(−5) + 22 = −3</b></div>
       <p>The vertex is <b>(−5, −3)</b>.</p>
     </div>
     <div class="stepbox">
       <div class="sbhead"><span class="sbnum">Step 3</span> Write it in vertex form</div>
       <p>Use the vertex (h, k) and a. The <b>a</b> value in standard form is the <b>same a</b> value in vertex form.</p>
-      <div class="sbex"><b>y = (x + 5)² − 3</b></div>
+      <div class="sbex"><div class="sbeq">Example: <b>y = x² + 10x + 22</b></div><div class="sbsub">a = 1, vertex (−5, −3)</div><b>y = (x + 5)² − 3</b></div>
     </div>`;
   window.__redraw = null;
   vertexChain(el, 2, 4, 2, "q1", 1, "", () =>
