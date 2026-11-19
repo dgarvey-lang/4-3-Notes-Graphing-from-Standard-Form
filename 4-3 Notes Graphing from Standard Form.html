@@ -624,13 +624,13 @@ function problem(el, [a, b, c], title) {
     <div class="vin">a = <input id="ia" inputmode="decimal" aria-label="a"> b = <input id="ib" inputmode="decimal" aria-label="b"> c = <input id="ic" inputmode="decimal" aria-label="c"></div>
     <p class="small muted">Type fractions like −1/2. Keep the signs!</p>`,
     [["ia", a], ["ib", b], ["ic", c]], `a = ${fmtN(a)}, b = ${fmtN(b)}, c = ${fmtN(c)}.`, "Not yet. Check each sign. If there is just a minus sign in front of x², a = −1.",
-    () => xCheck(el, a, b, "v", `<h2>2. Find the vertex x.</h2>`, "",
-      () => yCheck(el, a, b, c, "v", `<h2>3. Put x = ${fmtN(h)} into the original equation to find the vertex y.</h2>`,
-        () => vfCheck(el, a, h, k, `<h2>4. Write it in vertex form.</h2>
+    () => xCheck(el, a, b, "v", `<div class="qeq">${stdHTML(a, b, c)}</div><h2>2. Find the vertex x.</h2>`, "",
+      () => yCheck(el, a, b, c, "v", `<div class="qeq">${stdHTML(a, b, c)}</div><h2>3. Put x = ${fmtN(h)} into the original equation to find the vertex y.</h2>`,
+        () => vfCheck(el, a, h, k, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>4. Write it in vertex form.</h2>
           <div class="remind">The <b>a</b> value in standard form is the <b>same a</b> value in vertex form. Use a and the vertex (h, k): y = a(x − h)² + k</div>`,
           `${simp(a, h, k)}`,
           () => plot(el, a, h, k, "5. Graph it! Tap the grid to plot points.", () =>
-            numCheck(el, `<h2>6. Check: what is the y-intercept?</h2>
+            numCheck(el, `<div class="qeq">${stdHTML(a, b, c)}</div><h2>6. Check: what is the y-intercept?</h2>
               <div class="vin">( 0 , <input id="yi" inputmode="decimal" aria-label="y-intercept"> )</div>
               ${Math.abs(c) > 10 ? '<p class="small muted">This one is off the grid!</p>' : ""}`,
               [["yi", c]], `The y-intercept is (0, ${fmtN(c)}). It is the c value!`, "Hint: look at the c value in standard form."))))));
