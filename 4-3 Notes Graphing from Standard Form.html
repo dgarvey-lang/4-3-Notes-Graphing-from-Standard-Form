@@ -642,9 +642,9 @@ function plot(el, a, h, k, title, onDone) {
   const q = document.createElement("div"); q.className = "q";
   q.innerHTML = `<h2>${title || "Graph it! Tap the grid to plot points."}</h2>
     <p class="small">Plot the vertex, then use the pattern to plot <b>2 points on each side</b> (over 1 and over 2). Tap a point again to remove it.</p>
-    <div class="plotrow${Math.abs(a) !== 1 ? " haspanel" : ""}">
+    <div class="plotrow haspanel">
       <div class="graph plotbox"><div class="ploteq">${eqHTML(a, h, k)}</div><canvas id="pc" class="tap"></canvas></div>
-      ${Math.abs(a) !== 1 ? multPanel(a) : ""}
+      ${Math.abs(a) !== 1 ? multPanel(a) : patPanel(a)}
     </div>
     <p class="small muted" id="plist">Your points: none yet</p>
     <div class="chips"><button class="btn sm" id="pchk">Check my graph</button><button class="chip" id="pclr">Clear</button></div>
@@ -693,6 +693,17 @@ function plot(el, a, h, k, title, onDone) {
 }
 
 // side panel: the standard pattern times a
+function patPanel(a) {
+  const dir = a > 0 ? "up" : "down";
+  return `<div class="mult" id="pat">
+    <h3>The pattern</h3>
+    <p class="small">From the vertex, go over and ${dir}. Do it on <b>both sides</b> of the vertex.</p>
+    <table class="pat"><thead><tr><th>Over</th><th>Then ${dir}</th></tr></thead><tbody>
+      ${[1, 2, 3].map(i => `<tr><td>over <b>${i}</b></td><td>${dir} <b>${i * i}</b></td></tr>`).join("")}
+    </tbody></table>
+    <p class="small muted">${a < 0 ? "a = −1, so the parabola opens DOWN: go down instead of up." : "a = 1, so use the pattern just as it is."} You may not be able to graph the over 3 point.</p>
+  </div>`;
+}
 function multPanel(a) {
   const dir = a > 0 ? "up" : "down";
   return `<div class="mult" id="mult">
