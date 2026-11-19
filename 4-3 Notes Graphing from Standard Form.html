@@ -147,7 +147,7 @@ html, body { overflow-x: clip; }
 .rule.abc .tb { color: var(--up); }
 .rule.abc .tc { color: var(--over); }
 .rule.abc span, .rule.order span { font-size: 18px; }
-.rule.order b { min-width: 3em; }
+.rule.order b { min-width: 3em; font-size: 22px; } .rule.order .ta { color: var(--accent); } .rule.order .tb { color: var(--up); } .rule.order .tc { color: var(--over); }
 </style>
 </head>
 <body>
@@ -320,11 +320,12 @@ function numCheck(el, html, answers, okMsg, badMsg, onRight) {
 // ---------- steps ----------
 function stepOrder(el) {
   el.innerHTML = `<h1 class="big">What is standard form?</h1>
+    <div class="eq">y = <span class="a">a</span>x² + <span class="bb">b</span>x + <span class="cc">c</span></div>
     <p class="big">An equation is in <b>standard form</b> when its terms are written from the <b>highest exponent to the lowest</b>.</p>
     <div class="rule order">
-      <div><b>1st</b><span>the x² term (exponent 2)</span></div>
-      <div><b>2nd</b><span>the x term (exponent 1)</span></div>
-      <div><b>3rd</b><span>the number by itself (no x)</span></div>
+      <div><b class="ta">ax²</b><span>the x² term (exponent 2) comes first</span></div>
+      <div><b class="tb">bx</b><span>the x term (exponent 1) comes next</span></div>
+      <div><b class="tc">c</b><span>the number by itself (no x) comes last</span></div>
     </div>
     <div class="ex">
       <div class="small muted">Example: rearrange</div>
