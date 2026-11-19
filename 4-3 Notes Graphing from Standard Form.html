@@ -139,6 +139,15 @@ html, body { overflow-x: clip; }
 .eq .bb { color: var(--up); }
 .eq .cc { color: var(--over); }
 .vread { font-family: var(--display); font-size: 20px; text-align: center; }
+.ex { background: var(--paper); border: 1px solid var(--line); border-radius: 10px; padding: 12px 16px; text-align: center; }
+.ex .eqline { font-family: var(--display); font-weight: 700; font-size: clamp(22px, 5vw, 28px); }
+.ex .arrow { font-size: 22px; color: var(--accent); line-height: 1.2; }
+.rule.abc b { min-width: 2em; font-size: 22px; }
+.rule.abc .ta { color: var(--accent); }
+.rule.abc .tb { color: var(--up); }
+.rule.abc .tc { color: var(--over); }
+.rule.abc span, .rule.order span { font-size: 18px; }
+.rule.order b { min-width: 3em; }
 </style>
 </head>
 <body>
@@ -309,10 +318,41 @@ function numCheck(el, html, answers, okMsg, badMsg, onRight) {
 }
 
 // ---------- steps ----------
+function stepOrder(el) {
+  el.innerHTML = `<h1 class="big">What is standard form?</h1>
+    <p class="big">An equation is in <b>standard form</b> when its terms are written from the <b>highest exponent to the lowest</b>.</p>
+    <div class="rule order">
+      <div><b>1st</b><span>the x² term (exponent 2)</span></div>
+      <div><b>2nd</b><span>the x term (exponent 1)</span></div>
+      <div><b>3rd</b><span>the number by itself (no x)</span></div>
+    </div>
+    <div class="ex">
+      <div class="small muted">Example: rearrange</div>
+      <div class="eqline">y = 3 + 2x² − 5x</div>
+      <div class="arrow">↓</div>
+      <div class="eqline">y = 2x² − 5x + 3</div>
+    </div>
+    <p class="big"><b>Keep the sign with each term when you move it!</b> The −5x stays −5x.</p>`;
+  window.__redraw = null;
+  const qs = [
+    ["1. Put y = 4x + x² − 7 in standard form.", ["y = 4x + x² − 7", "y = x² + 4x − 7", "y = x² − 7 + 4x"], "y = x² + 4x − 7", "x² first, then 4x, then −7."],
+    ["2. Put y = 6 − 3x² + 2x in standard form.", ["y = −3x² + 2x + 6", "y = 3x² + 2x + 6", "y = 2x − 3x² + 6"], "y = −3x² + 2x + 6", "The −3x² keeps its minus sign when it moves to the front."],
+    ["3. Put y = −8x + 5 + 2x² in standard form.", ["y = 2x² + 8x + 5", "y = 2x² + 5 − 8x", "y = 2x² − 8x + 5"], "y = 2x² − 8x + 5", "2x², then −8x, then +5."],
+  ];
+  const ask = i => { if (i < qs.length) question(el, qs[i][0], qs[i][1], qs[i][2], qs[i][3], () => ask(i + 1)); };
+  ask(0);
+}
+
 function stepStandard(el) {
-  el.innerHTML = `<h1 class="big">Standard form</h1>
+  el.innerHTML = `<h1 class="big">Finding a, b, and c</h1>
     <p class="big">A quadratic in <b>standard form</b> looks like this:</p>
     <div class="eq">y = <span class="a">a</span>x² + <span class="bb">b</span>x + <span class="cc">c</span></div>
+    <div class="rule abc">
+      <div><b class="ta">a</b><span>is the number in front of the <b>x²</b> term</span></div>
+      <div><b class="tb">b</b><span>is the number in front of the <b>x</b> term</span></div>
+      <div><b class="tc">c</b><span>is the last number (the number by itself)</span></div>
+    </div>
+    <p class="small muted">Make sure the equation is in standard form first! Keep the signs: in y = 2x² − 5x + 3, b = −5. No number in front of x² means a = 1. Just a minus sign means a = −1.</p>
     <p class="big">Here is one: <b>${stdHTML(1, 10, 22)}</b></p>
     <div class="graph mini"><canvas id="cv"></canvas></div>`;
   const cv = el.querySelector("#cv");
@@ -550,7 +590,7 @@ function stepEnd(el) {
 }
 
 const PROBS = [[1, 10, 22], [2, 4, 2], [-0.5, 4, -12], [-1, -6, -5]];
-const steps = [stepStandard, stepFormula, stepPlug, stepIntercept, stepRules,
+const steps = [stepOrder, stepStandard, stepFormula, stepPlug, stepIntercept, stepRules,
   ...PROBS.map((p, i) => el => problem(el, p, i === 0 ? "Example: graph it" : `Practice ${i} of ${PROBS.length - 1}: graph it`)), stepEnd];
 
 // ---------- stepper ----------
