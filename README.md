@@ -18,5 +18,5 @@ Steps:
 
 ## Student notes sheet
 
-- `4-3 Notes Graphing from Standard Form - Student.pdf`: a 4-page fill-in sheet that follows the lesson
+- `4-3 Notes Graphing from Standard Form - Student.pdf`: a 5-page fill-in sheet that follows the lesson
 - `4-3 Notes Graphing from Standard Form - Answer Key.pdf`: the same sheet with answers and graphs
