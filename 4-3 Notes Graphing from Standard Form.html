@@ -464,33 +464,64 @@ function xCheck(el, a, b, p, heading, hint, onDone) {
   el.appendChild(q);
 }
 
-// ---------- vertex y: students put a, x, b, x, c into the equation ----------
+// ---------- vertex y: students type the whole substituted equation ----------
+function parseExpr(str) {
+  let t = String(str).toLowerCase().replace(/\s+/g, "").replace(/−/g, "-").replace(/²/g, "^2").replace(/½/g, "(1/2)");
+  t = t.replace(/^y=/, "");
+  if (t.includes("x")) return { err: "x" };
+  if (!/\^2/.test(t) || !t.includes("(")) return { err: "form" };
+  if (/[^0-9+\-*/().^]/.test(t)) return { err: "chars" };
+  t = t.replace(/\^2/g, "**2").replace(/(\d|\))(?=\()/g, "$1*").replace(/(^|[(+\-*/])-\(/g, "$1-1*(");
+  try { const v = new Function('"use strict"; return (' + t + ");")(); if (!isFinite(v)) throw 0; return { v }; } catch (e) { return { err: "parse" }; }
+}
 function yCheck(el, a, b, c, p, heading, onDone) {
   const h = -b / (2 * a), k = a * h * h + b * h + c;
-  const box = (id, lab) => `<input id="${p}${id}" class="yb" inputmode="decimal" aria-label="${lab}">`;
   const q = document.createElement("div"); q.className = "q";
   q.innerHTML = heading + `
     <div class="remind">Put the numbers into the <b>original equation</b>: &nbsp;<b>y = <span class="ah">a</span>(x)² + <span class="bh">b</span>(x) + <span class="chh">c</span></b>. Use x = ${fmtN(h)}.</div>
-    <div class="yform">y = ${box("ya", "a")}( ${box("yx1", "x value")} )² + ${box("yb", "b")}( ${box("yx2", "x value")} ) + ${box("yc", "c")} = ${box("y", "vertex y")}</div>
-    <p class="small muted">Keep the signs: if b is −6, type −6. Use your calculator or Desmos to work it out.</p>
-    <div><button class="btn sm">Check</button></div><div class="fb" aria-live="polite"></div>`;
-  const fb = q.querySelector(".fb"); let done = false;
-  const get = id => q.querySelector("#" + p + id);
-  q.querySelector(".btn").onclick = () => {
-    const want = { ya: a, yx1: h, yb: b, yx2: h, yc: c, y: k };
-    const ok = {};
-    for (const id in want) { ok[id] = Math.abs(parseNum(get(id).value) - want[id]) < 1e-9; get(id).classList.toggle("good", ok[id]); get(id).classList.toggle("badin", !ok[id]); }
-    let msg;
-    if (!ok.ya) msg = "Check a. It is the number in front of x².";
-    else if (!ok.yx1 || !ok.yx2) msg = `Check the x boxes. Put the vertex x, ${fmtN(h)}, in both.`;
-    else if (!ok.yb) msg = "Check b. It is the number in front of x. Keep its sign!";
-    else if (!ok.yc) msg = "Check c. It is the last number. Keep its sign!";
-    else if (!ok.y) msg = "Your numbers are in the right places! Now work it out: square first, then multiply, then add.";
-    const all = Object.values(ok).every(Boolean);
+    <div class="vfin"><input id="${p}ye" class="vfbox" aria-label="equation with the numbers put in" placeholder="y = a(x)² + b(x) + c" autocomplete="off" spellcheck="false" value="y = "></div>
+    <div class="mkeys" role="group" aria-label="math buttons">
+      ${["(", ")", "²", "+", "−", "/"].map(k => `<button type="button" class="mk${k === "²" ? " mksq" : ""}" data-k="${k}" aria-label="${{ "²": "squared", "−": "minus", "/": "divide or fraction", "(": "open parenthesis", ")": "close parenthesis" }[k] || k}">${k === "²" ? "□<sup>2</sup>" : k}</button>`).join("")}
+      <button type="button" class="mk mkdel" data-k="del" aria-label="backspace">⌫</button>
+      <button type="button" class="mk mkclr" data-k="clr" aria-label="clear">Clear</button>
+    </div>
+    <div class="vfprev" aria-live="polite"></div>
+    <p class="small muted">Type the whole equation with the x value in parentheses. Use the <b>□²</b> button to square.</p>
+    <div class="vin">So y = <input id="${p}y" inputmode="decimal" aria-label="vertex y"></div><p class="small muted">Work it out with your calculator or Desmos.</p>
+    <div><button class="btn sm ck">Check</button></div><div class="fb" aria-live="polite"></div>`;
+  const inp = q.querySelector(".vfbox"), yin = q.querySelector("#" + p + "y"), fb = q.querySelector(".fb"), prev = q.querySelector(".vfprev");
+  let done = false, caret = inp.value.length;
+  const pretty = v => v.replace(/\^2/g, "²").replace(/-/g, "−").replace(/\s*([+=])\s*/g, " $1 ").replace(/\)\s*−\s*/g, ") − ").replace(/²\s*−\s*/g, "² − ").replace(/\s+/g, " ").trim();
+  const showPrev = () => { prev.textContent = inp.value.trim() && inp.value.trim() !== "y =" ? pretty(inp.value) : ""; };
+  inp.addEventListener("input", () => { caret = inp.selectionStart; showPrev(); });
+  inp.addEventListener("keyup", () => { caret = inp.selectionStart; });
+  inp.addEventListener("click", () => { caret = inp.selectionStart; });
+  q.querySelectorAll(".mk").forEach(btn => btn.addEventListener("click", () => {
+    const k = btn.dataset.k, v = inp.value, at = Math.min(caret ?? v.length, v.length);
+    if (k === "clr") { inp.value = "y = "; caret = 4; }
+    else if (k === "del") { if (at > 0) { inp.value = v.slice(0, at - 1) + v.slice(at); caret = at - 1; } }
+    else { inp.value = v.slice(0, at) + k + v.slice(at); caret = at + k.length; }
+    inp.classList.remove("good", "badin"); showPrev();
+  }));
+  const run = () => {
+    const r = parseExpr(inp.value);
+    let okE = false, msg = "";
+    if (r.err === "x") msg = `Replace x with the number ${fmtN(h)}. There should be no x left.`;
+    else if (r.err === "form") msg = `Write the whole equation with the x value in parentheses, like ${fmtN(a)}(${fmtN(h)})² + ...`;
+    else if (r.err) msg = "I can't read that. Check your parentheses.";
+    else if (Math.abs(r.v - k) > 1e-9) msg = "Check your numbers. Use a, b, and c from the original equation, and put the x value in both spots.";
+    else okE = true;
+    const okY = Math.abs(parseNum(yin.value) - k) < 1e-9;
+    inp.classList.toggle("good", okE); inp.classList.toggle("badin", !okE);
+    yin.classList.toggle("good", okY); yin.classList.toggle("badin", !okY);
+    if (okE && !okY) msg = "Your equation is right! Now work it out to find y: square first, then multiply, then add.";
+    const all = okE && okY;
     fb.className = "fb " + (all ? "right" : "wrong");
     fb.textContent = all ? `Yes! y = ${fmtN(k)}. The vertex is (${fmtN(h)}, ${fmtN(k)}).` : msg;
     if (all && !done) { done = true; onDone && onDone(); }
   };
+  q.querySelector(".ck").onclick = run;
+  inp.addEventListener("keydown", e => { if (e.key === "Enter") run(); });
   el.appendChild(q);
 }
 
